@@ -1,0 +1,219 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+
+local GLOOM = Instance.new("ScreenGui")
+GLOOM.ResetOnSpawn = false
+local MainFrame = Instance.new("Frame")
+local AutoDupeButton = Instance.new("TextButton")
+local AutoDupeButtonUICorner = Instance.new("UICorner")
+local MainFrameUICorner = Instance.new("UICorner")
+local TargetToolButton = Instance.new("ImageButton")
+local TargetToolButtonUIGradient = Instance.new("UIGradient")
+
+--Properties:
+
+GLOOM.Name = "GLOOM"
+GLOOM.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+GLOOM.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = GLOOM
+MainFrame.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.859180868, 0, -.06, 0)
+MainFrame.Size = UDim2.new(0.135120347, 0, 0.125173852, 0)
+
+AutoDupeButton.Name = "AutoDupeButton"
+AutoDupeButton.Parent = MainFrame
+AutoDupeButton.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
+AutoDupeButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+AutoDupeButton.BorderSizePixel = 0
+AutoDupeButton.Position = UDim2.new(0.0413638018, 0, 0.125, 0)
+AutoDupeButton.Size = UDim2.new(0.920000017, 0, 0.736842036, 0)
+AutoDupeButton.Font = Enum.Font.SourceSansBold
+AutoDupeButton.Text = "Auto-Dupe: OFF"
+AutoDupeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoDupeButton.TextSize = 22.000
+
+AutoDupeButtonUICorner.CornerRadius = UDim.new(0, 4)
+AutoDupeButtonUICorner.Name = "AutoDupeButtonUICorner"
+AutoDupeButtonUICorner.Parent = AutoDupeButton
+
+MainFrameUICorner.Name = "MainFrameUICorner"
+MainFrameUICorner.Parent = MainFrame
+
+TargetToolButton.Name = "TargetToolButton"
+TargetToolButton.Parent = MainFrame
+TargetToolButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TargetToolButton.BackgroundTransparency = 0.650
+TargetToolButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TargetToolButton.BorderSizePixel = 0
+TargetToolButton.Position = UDim2.new(0.671508133, 0, 1.08333337, 0)
+TargetToolButton.Size = UDim2.new(0.326198041, 0, 0.472222209, 0)
+TargetToolButton.Image = "rbxassetid://72942139012893"
+
+TargetToolButtonUIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(131, 42, 255)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 246, 143)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(131, 42, 255))}
+TargetToolButtonUIGradient.Name = "TargetToolButtonUIGradient"
+TargetToolButtonUIGradient.Parent = TargetToolButton
+
+
+-- Create a UIStroke for the MainFrame
+local MainFrameUIStroke = Instance.new("UIStroke")
+MainFrameUIStroke.Name = "MainFrameUIStroke"
+MainFrameUIStroke.Parent = MainFrame
+MainFrameUIStroke.Thickness = 4        -- initial thickness
+MainFrameUIStroke.Transparency = 0.2   -- initial transparency
+MainFrameUIStroke.Color = Color3.fromRGB(131, 42, 255) -- stroke color
+
+
+-- Scripts:
+
+local function MSLCQVJ_fake_script() -- GLOOM.MainScript 
+	local script = Instance.new('LocalScript', GLOOM)
+
+	local GLOOM = script.Parent
+	local MainFrame = GLOOM.MainFrame
+	local AutoDupeButton = MainFrame.AutoDupeButton
+	local TargetToolButton = MainFrame.TargetToolButton
+	local MainFrameUIStroke = MainFrame.MainFrameUIStroke
+	
+	
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local TweenService = game:GetService("TweenService")
+	
+	local Player = Players.LocalPlayer
+	local Cooldown = false
+	local TargetToolName = nil
+	local DupeLoopRunning = false
+	
+	-- Tween info
+	local tweenInfo = TweenInfo.new(
+		1.5, 
+		Enum.EasingStyle.Sine, 
+		Enum.EasingDirection.InOut, 
+		-1, -- repeat forever
+		true -- reverse
+	)
+	-- Tween goal states
+	local goal = {
+		Thickness = 1.5,
+		Transparency = 0.8
+	}
+	-- Create and play tween
+	local strokeTween = TweenService:Create(MainFrameUIStroke, tweenInfo, goal)
+	strokeTween:Play()
+	
+	
+	-- Notifications
+	local function notify(text, time)
+		game.StarterGui:SetCore("SendNotification", {
+			Title = "GLOOM",
+			Text = text,
+			Duration = time or 5
+		})
+	end
+	
+	-- Set target tool
+	local function SetTargetTool()
+		local Tool = Player.Character:FindFirstChildOfClass("Tool")
+		if not Tool then
+			notify("Could not find a tool! Hold one first.")
+			return
+		end
+        
+		TargetToolName = Tool.Name
+		notify("Target Tool: "..TargetToolName)
+            local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:UnequipTools()
+            end
+	end
+	TargetToolButton.MouseButton1Click:Connect(SetTargetTool)
+	
+	-- Dupe function
+	local function DupeOnce()
+		if Cooldown or not TargetToolName then return false end
+	
+		local Tool = Player.Backpack:FindFirstChild(TargetToolName)
+		if not Tool then
+			notify("Tool not found in backpack!", 5)
+			return false
+		end
+	
+		Cooldown = true
+		local ToolName = Tool.Name
+		local ToolId
+	
+		local Connection
+		Connection = ReplicatedStorage.MarketItems.ChildAdded:Connect(function(item)
+			if item.Name == ToolName and item:WaitForChild("owner").Value == Player.Name then
+				ToolId = item:GetAttribute("SpecialId")
+			end
+		end)
+	
+		task.spawn(function()
+			ReplicatedStorage.ListWeaponRemote:FireServer(ToolName, 99999)
+		end)
+	
+		task.wait(0.26)
+		task.spawn(function()
+			ReplicatedStorage.BackpackRemote:InvokeServer("Store", ToolName)
+		end)
+	
+		task.wait(3)
+		task.spawn(function()
+			ReplicatedStorage.BuyItemRemote:FireServer(ToolName, "Remove", ToolId)
+		end)
+	
+		task.spawn(function()
+			ReplicatedStorage.BackpackRemote:InvokeServer("Grab", ToolName)
+		end)
+		Connection:Disconnect()
+		task.wait(1)
+		Cooldown = false
+		return true
+	end
+	
+	-- AutoDupe loop
+	local function StartDupeLoop()
+		if DupeLoopRunning then return end
+		if not TargetToolName then
+			notify("You must set a target tool first!", 5)
+			return
+		end
+		DupeLoopRunning = true
+		AutoDupeButton.Text = "Auto-Dupe: ON"
+	
+		task.spawn(function()
+			while DupeLoopRunning do
+				local success = DupeOnce()
+				if not success then
+					notify("Stopping AutoDupe. Tool unavailable!", 5)
+                    TargetToolName = nil
+					AutoDupeButton.Text = "Auto-Dupe: OFF"
+					DupeLoopRunning = false
+					break
+				end
+				task.wait(1)
+			end
+		end)
+	end
+	
+	-- Button click
+	AutoDupeButton.MouseButton1Click:Connect(function()
+		if DupeLoopRunning then
+			DupeLoopRunning = false
+			AutoDupeButton.Text = "Auto-Dupe: OFF"
+            TargetToolName = nil
+			notify("AutoDupe Stopped", 3)
+		else
+			StartDupeLoop()
+		end
+	end)
+	
+end
+coroutine.wrap(MSLCQVJ_fake_script)()
