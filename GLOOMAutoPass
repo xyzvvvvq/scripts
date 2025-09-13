@@ -1,0 +1,192 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PlayerListGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0.25, 0, 0.6, 0)
+MainFrame.Position = UDim2.new(0.75, 0,0.4, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.Parent = ScreenGui
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 100, 0, 30)
+ToggleButton.Position = UDim2.new(0.916, 0,0.347, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 16
+ToggleButton.Text = "Toggle GUI"
+ToggleButton.Parent = ScreenGui
+
+ToggleButton.MouseButton1Click:Connect(function()
+	MainFrame.Visible = not MainFrame.Visible
+end)
+
+local AutoPassButton = Instance.new("TextButton")
+AutoPassButton.Size = UDim2.new(0.9, 0, 0, 30)
+AutoPassButton.Position = UDim2.new(0.05, 0, 0.01, 0)
+AutoPassButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+AutoPassButton.Font = Enum.Font.GothamBold
+AutoPassButton.TextSize = 16
+AutoPassButton.Text = "AutoPass: OFF"
+AutoPassButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+AutoPassButton.Parent = MainFrame
+
+local autoPassEnabled = false
+AutoPassButton.MouseButton1Click:Connect(function()
+	autoPassEnabled = not autoPassEnabled
+	AutoPassButton.Text = "AutoPass: " .. (autoPassEnabled and "ON" or "OFF")
+	AutoPassButton.TextColor3 = autoPassEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+end)
+
+local SetToolButton = Instance.new("TextButton")
+SetToolButton.Size = UDim2.new(0.9, 0, 0, 30)
+SetToolButton.Position = UDim2.new(0.05, 0, 0.07, 0)
+SetToolButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+SetToolButton.Font = Enum.Font.GothamBold
+SetToolButton.TextSize = 16
+SetToolButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SetToolButton.Text = "Set Target Tool"
+SetToolButton.Parent = MainFrame
+
+local function noti(text, time)
+	StarterGui:SetCore("SendNotification", {
+		Title = "XYZV.",
+		Text = text,
+		Duration = time or 3
+	})
+end
+
+local targetToolName = nil
+SetToolButton.MouseButton1Click:Connect(function()
+	local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+	if tool then
+		targetToolName = tool.Name
+		noti("TARGET TOOL:  " .. targetToolName)
+		SetToolButton.Text = "Target: " .. targetToolName
+	else
+		noti("No tool equipped to set as target.")
+	end
+end)
+
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
+ScrollingFrame.Size = UDim2.new(0.9, 0, 0.8, 0)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollingFrame.ScrollBarThickness = 6
+ScrollingFrame.BackgroundTransparency = 0.5
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ScrollingFrame.Parent = MainFrame
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 5)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+Layout.Parent = ScrollingFrame
+
+local selectedPlayers = {}
+local currentIndex = 1
+
+local function sendMessage(msg)
+	local channel = TextChatService:FindFirstChild("TextChannels")
+	if channel and channel:FindFirstChild("RBXGeneral") then
+		channel.RBXGeneral:SendAsync(msg)
+	else
+		pcall(function()
+			StarterGui:SetCore("ChatMakeSystemMessage", {
+				Text = msg,
+				Color = Color3.fromRGB(255, 255, 255),
+				Font = Enum.Font.SourceSansBold,
+				FontSize = Enum.FontSize.Size24
+			})
+		end)
+	end
+end
+
+local function RefreshPlayers()
+	for _, child in ipairs(ScrollingFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+
+	local Cache = {}
+	for _, Player in ipairs(Players:GetPlayers()) do
+		if Player ~= LocalPlayer then
+			table.insert(Cache, Player.Name)
+		end
+	end
+	table.sort(Cache)
+
+	for _, name in ipairs(Cache) do
+		local Button = Instance.new("TextButton")
+		Button.Size = UDim2.new(1, -10, 0, 30)
+		Button.BackgroundTransparency = 0.3
+		Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		Button.TextColor3 = table.find(selectedPlayers, name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+		Button.Font = Enum.Font.GothamBold
+		Button.TextSize = 20
+		Button.Text = name
+		Button.Parent = ScrollingFrame
+
+		Button.MouseButton1Click:Connect(function()
+			if table.find(selectedPlayers, name) then
+				table.remove(selectedPlayers, table.find(selectedPlayers, name))
+			else
+				table.insert(selectedPlayers, name)
+			end
+			RefreshPlayers()
+		end)
+	end
+
+	ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y)
+end
+
+RefreshPlayers()
+Players.PlayerAdded:Connect(RefreshPlayers)
+Players.PlayerRemoving:Connect(RefreshPlayers)
+
+coroutine.wrap(function()
+	while true do
+		task.wait(3)
+		if autoPassEnabled and #selectedPlayers > 0 and targetToolName then
+			local character = LocalPlayer.Character
+			local tool = character and character:FindFirstChild(targetToolName)
+
+			local targetName = selectedPlayers[currentIndex]
+			if not targetName then
+				currentIndex = 1
+				targetName = selectedPlayers[currentIndex]
+			end
+
+			if tool then
+				sendMessage("/passto " .. targetName)
+			else
+				local backpackTool = LocalPlayer:FindFirstChild("Backpack") and LocalPlayer.Backpack:FindFirstChild(targetToolName)
+				if backpackTool then
+					backpackTool.Parent = character
+					task.wait(0.5)
+					sendMessage("/passto " .. targetName)
+				else
+					autoPassEnabled = false
+					AutoPassButton.Text = "AutoPass: OFF"
+					AutoPassButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+					noti("Tool '" .. targetToolName .. "' not found. AutoPass disabled.")
+				end
+			end
+
+			currentIndex = currentIndex + 1
+			if currentIndex > #selectedPlayers then
+				currentIndex = 1
+			end
+		end
+	end
+end)()
