@@ -163,17 +163,15 @@ local function MSLCQVJ_fake_script() -- GLOOM.MainScript
 		task.spawn(function()
 			ReplicatedStorage.BackpackRemote:InvokeServer("Store", ToolName)
 		end)
-	
 		task.wait(3)
 		task.spawn(function()
-			ReplicatedStorage.BuyItemRemote:FireServer(ToolName, "Remove", ToolId)
+			ReplicatedStorage.BuyItemRemote:FireServer(ToolName, "Remove", ToolId) -- take t
 		end)
-	
+			
 		task.spawn(function()
 			ReplicatedStorage.BackpackRemote:InvokeServer("Grab", ToolName)
 		end)
 		Connection:Disconnect()
-		task.wait(1)
 		Cooldown = false
 		return true
 	end
@@ -198,7 +196,7 @@ local function MSLCQVJ_fake_script() -- GLOOM.MainScript
 					DupeLoopRunning = false
 					break
 				end
-				task.wait(1)
+				task.wait(3)
 			end
 		end)
 	end
