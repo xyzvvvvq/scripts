@@ -154,7 +154,7 @@ local function MSLCQVJ_fake_script() -- GLOOM.MainScript
 				ToolId = item:GetAttribute("SpecialId")
 			end
 		end)
-	
+		task.wait(1)
 		task.spawn(function()
 			ReplicatedStorage.ListWeaponRemote:FireServer(ToolName, 99999)
 		end)
