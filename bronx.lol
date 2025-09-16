@@ -14462,7 +14462,7 @@ if Game_Name == "The Bronx" then
         
                     LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack["MoneyReady"])
         
-                    repeat task.wait(1.5) fireproximityprompt(Cleaner:FindFirstChild("GrabPrompt", true)) until not LocalPlayer.Character:FindFirstChild("MoneyReady")
+                    repeat task.wait(1.1) fireproximityprompt(Cleaner:FindFirstChild("GrabPrompt", true)) until not LocalPlayer.Character:FindFirstChild("MoneyReady")
                     
                     repeat task.wait()
                     until LocalPlayer.Backpack:FindFirstChild("BagOfMoney")
