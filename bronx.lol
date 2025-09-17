@@ -14448,7 +14448,7 @@ if Game_Name == "The Bronx" then
         
                     repeat task.wait() until Cleaner:FindFirstChild("On", true).Color == Color3.fromRGB(74, 156, 69)
         
-                    task.wait(1.5)
+                    task.wait(0.5)
         
                     fireproximityprompt(Cleaner:FindFirstChild("CashPrompt", true))
                     
@@ -14459,10 +14459,10 @@ if Game_Name == "The Bronx" then
                     task.wait(0.4)
         
                     repeat task.wait() until LocalPlayer.Backpack:FindFirstChild("MoneyReady")
-        
+        			task.wait(1)
                     LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack["MoneyReady"])
         
-                    repeat task.wait(1.5) fireproximityprompt(Cleaner:FindFirstChild("GrabPrompt", true)) until not LocalPlayer.Character:FindFirstChild("MoneyReady")
+                    repeat task.wait(2.5) fireproximityprompt(Cleaner:FindFirstChild("GrabPrompt", true)) until not LocalPlayer.Character:FindFirstChild("MoneyReady")
                     
                     repeat task.wait()
                     until LocalPlayer.Backpack:FindFirstChild("BagOfMoney")
