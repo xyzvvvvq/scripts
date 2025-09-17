@@ -14448,7 +14448,7 @@ if Game_Name == "The Bronx" then
         
                     repeat task.wait() until Cleaner:FindFirstChild("On", true).Color == Color3.fromRGB(74, 156, 69)
         
-                    task.wait(0.5)
+                    task.wait(1.5)
         
                     fireproximityprompt(Cleaner:FindFirstChild("CashPrompt", true))
                     
