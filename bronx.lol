@@ -14712,7 +14712,7 @@ if Game_Name == "The Bronx" then
 
                     Workspace["IceFruit Sell"].ProximityPrompt.HoldDuration = 0
 
-                    for Index=1, 4000 do
+                    for Index=1, 8000 do
                         task.spawn(function()
                             _fireproximityprompt(Workspace["IceFruit Sell"].ProximityPrompt)
                         end)
