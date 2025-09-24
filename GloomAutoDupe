@@ -137,26 +137,23 @@ local function MSLCQVJ_fake_script() -- GLOOM.MainScript
 	-- Dupe function
 	local function DupeOnce()
 		if Cooldown or not TargetToolName then return false end
-	
 		local Tool = Player.Backpack:FindFirstChild(TargetToolName)
 		if not Tool then
 			notify("Tool not found in backpack!", 5)
 			return false
 		end
-	
 		Cooldown = true
 		local ToolName = Tool.Name
 		local ToolId
-	
 		local Connection
 		Connection = ReplicatedStorage.MarketItems.ChildAdded:Connect(function(item)
 			if item.Name == ToolName and item:WaitForChild("owner").Value == Player.Name then
 				ToolId = item:GetAttribute("SpecialId")
 			end
 		end)
-		task.wait(1)
+		task.wait(3)
 		task.spawn(function()
-			ReplicatedStorage.ListWeaponRemote:FireServer(ToolName, 99999)
+			ReplicatedStorage.ListWeaponRemote:FireServer(ToolName, 800000)
 		end)
 	
 		task.wait(0.26)
